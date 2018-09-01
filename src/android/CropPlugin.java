@@ -39,7 +39,7 @@ public class CropPlugin extends CordovaPlugin {
           this.callbackContext = callbackContext;
 
           cordova.setActivityResultCallback(this);
-          Crop crop = Crop.of(this.inputUri, this.outputUri);
+          final Crop crop = Crop.of(this.inputUri, this.outputUri);
           if(targetHeight != -1 && targetWidth != -1) {
               crop.withMaxSize(targetWidth, targetHeight);
               if(targetWidth == targetHeight) {
@@ -48,7 +48,14 @@ public class CropPlugin extends CordovaPlugin {
           } else {
               crop.asSquare();
           }
-          crop.start(cordova.getActivity());
+
+          cordova.getThreadPool().execute(new Runnable() {
+              @Override
+              public void run() {
+                  crop.start(cordova.getActivity());
+              }
+          });
+
           return true;
       }
       return false;
