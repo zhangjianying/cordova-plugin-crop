@@ -3,8 +3,10 @@ package com.jeduan.crop;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.content.FileProvider;
 
 import com.soundcloud.android.crop.Crop;
 
@@ -30,7 +32,15 @@ public class CropPlugin extends CordovaPlugin {
           int targetWidth = options.getInt("targetWidth");
           int targetHeight = options.getInt("targetHeight");
 
-          this.inputUri = Uri.parse(imagePath);
+          String pkName = cordova.getActivity().getPackageName();
+          final String authority = pkName+".provider";
+          boolean b = Build.VERSION.SDK_INT >= 24;
+          File file = new File(imagePath);
+          this.inputUri  = b
+                  ? FileProvider.getUriForFile(cordova.getActivity(), authority,file)
+                  : Uri.fromFile(file);
+
+//          this.inputUri = Uri.parse(imagePath);
           this.outputUri = Uri.fromFile(new File(getTempDirectoryPath() + "/" + System.currentTimeMillis()+ "-cropped.jpg"));
 
           PluginResult pr = new PluginResult(PluginResult.Status.NO_RESULT);
